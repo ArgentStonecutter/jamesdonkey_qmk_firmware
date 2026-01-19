@@ -91,13 +91,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case DF(_WB):
             if (record->event.pressed) {
                 set_single_persistent_default_layer(_WB);
-	    }
+            }
             return false;
 
         case DF(_MB):
             if (record->event.pressed) {
                 set_single_persistent_default_layer(_MB);
-	    }
+            }
             return false;
 
 #ifdef RGB_MATRIX_ENABLE
