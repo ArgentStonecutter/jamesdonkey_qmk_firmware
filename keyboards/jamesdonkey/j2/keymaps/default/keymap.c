@@ -18,7 +18,8 @@
 #include "common.h"
 
 enum cf_keycode {
-    CF_TOGGLE = SAFE_RANGE,
+    CF_TOGGLE = NEW_SAFE_RANGE,
+    AP_GLOB,
 };
 
 enum layers {
@@ -106,6 +107,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 cf_magic = !cf_magic;
             return false;
 #endif
+	case AP_GLOB:
+	    host_consumer_send(record->event.pressed ? AC_NEXT_KEYBOARD_LAYOUT_SELECT : 0);
+	    return false;
     }
 
     if (!process_record_common(keycode, record)) {
