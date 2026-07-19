@@ -84,7 +84,25 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][2] = {
 
 // clang-format on
 #ifdef RGB_MATRIX_ENABLE
-static uint8_t cf_magic = 0;
+
+typedef union {
+  uint32_t raw;
+  struct {
+    bool     cf_magic :1;
+  };
+} user_config_t;
+
+user_config_t user_config;
+
+void keyboard_post_init_user(void) {
+  // Read the user config from EEPROM
+  user_config.raw = eeconfig_read_user();
+}
+
+void eeconfig_init_user(void) {  // EEPROM is getting reset!
+  user_config.raw = 0;
+  eeconfig_update_user(user_config.raw);
+}
 #endif
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
@@ -103,8 +121,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 #ifdef RGB_MATRIX_ENABLE
         case CF_TOGGLE:
-            if (record->event.pressed)
-                cf_magic = !cf_magic;
+            if (record->event.pressed) {
+                user_config.cf_magic = !user_config.cf_magic;
+                eeconfig_update_user(user_config.raw);
+            }
             return false;
 #endif
 	case AP_GLOB:
@@ -129,7 +149,7 @@ static int colors[][3] = {
 };
 
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
-    if (!cf_magic)
+    if (!user_config.cf_magic)
         return true;
 
     int act = get_highest_layer(layer_state);
